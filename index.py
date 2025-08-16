@@ -6,9 +6,9 @@ from test import CLIENT_SECRET_ID, CLIENT_ID, CLIENT_SECRET_KEY
 
 app = Flask(__name__)
 
-connectedAppClientId = CLIENT_ID
-connectedAppSecretKey = CLIENT_SECRET_KEY
-connectedAppSecretId = CLIENT_SECRET_ID
+connectedAppClientId = "413bb233-2b39-4e2a-a42b-400779d2ce80"
+connectedAppSecretKey = "Y33AkudE1IM0xY5KDzVDVmAZB+89fq7EY3Ygc3qD7Vk="
+connectedAppSecretId = "9c456f30-e177-46e9-93fb-f1478c03410e"
 user = "anabeatriz@raizzcapital.com.br"
 
 viz_url = "https://us-east-1.online.tableau.com/t/anabeatriz-8787706e44/views/TVComercial-RaizzCapital_17543562925950/ResumoDemandaQuente?:origin=card_share_link&:embed=y"
