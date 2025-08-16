@@ -6,16 +6,18 @@ import gunicorn
 
 app = Flask(__name__)
 
+# Configurações Tableau Connected Apps
 connectedAppClientId = "413bb233-2b39-4e2a-a42b-400779d2ce80"
 connectedAppSecretKey = "Y33AkudE1IM0xY5KDzVDVmAZB+89fq7EY3Ygc3qD7Vk="
 connectedAppSecretId = "9c456f30-e177-46e9-93fb-f1478c03410e"
 user = "anabeatriz@raizzcapital.com.br"
 
-viz_url = "https://us-east-1.online.tableau.com/t/anabeatriz-8787706e44/views/TVComercial-RaizzCapital_17543562925950/ResumoDemandaQuente?:origin=card_share_link&:embed=y"
+# URL base do Tableau (sem token)
+viz_base_url = "https://us-east-1.online.tableau.com/t/anabeatriz-8787706e44/views/TVComercial-RaizzCapital_17543562925950/ResumoDemandaQuente?:origin=card_share_link&:embed=y"
 
 # --- Geração do JWT ---
 def generate_jwt():
-    token1 = jwt.encode(
+    token = jwt.encode(
         {
             "iss": connectedAppClientId,
             "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=5),
@@ -31,7 +33,7 @@ def generate_jwt():
             "iss": connectedAppClientId
         }
     )
-    return token1
+    return token
 
 @app.route('/')
 def index():
@@ -42,12 +44,11 @@ def index():
     <html>
     <head>
         <title>Raizz Capital - TV Comercial</title>
-        <script type="text/javascript" src="https://public.tableau.com/javascripts/api/tableau-2.min.js"></script>
+        <script src="https://public.tableau.com/javascripts/api/tableau-2.min.js"></script>
         <style>
-            * {{ margin: 0; padding: 0; }}
-            #vizContainer {{ width: 100%; height: 100vh; }}
+            * {{ margin:0; padding:0; }}
+            #vizContainer {{ width:100%; height:100vh; }}
         </style>
-        <link rel="icon" href="https://raizzcapital.com.br/wp-content/uploads/2024/02/logo-raizz-capital-fundo-branco.webp">
     </head>
     <body>
         <div id="vizContainer"></div>
@@ -55,29 +56,24 @@ def index():
             let viz;
             const dashboardNames = ["Resumo | Demanda Quente", "Funil | Visitas", "Setores | Imobiliárias", "Tamanho da Demanda"];
             const produtos = ["Raizz Viana", "Raizz Itajaí"];
-            
-            const tempoPorPainel = 10000;
+            const tempoPorPainel = 10000; // 10 segundos
             let currentDashboardIndex = 0;
             let currentProdutoIndex = 0;
             let isFirstRun = true;
 
-            const url = "{viz_url}";
-
             const options = {{
                 hideTabs: true,
                 hideToolbar: true,
+                width: "100%",
+                height: "100%",
                 onFirstInteractive: function() {{
-                    console.log("Visualização carregada!");
                     iniciarCiclo();
-                }},
-                headers: {{
-                    "Authorization": "Bearer {token}"
                 }}
             }};
 
             function initViz() {{
                 const containerDiv = document.getElementById("vizContainer");
-                viz = new tableau.Viz(containerDiv, url, options);
+                viz = new tableau.Viz(containerDiv, "{viz_base_url}", options);
             }}
 
             function iniciarCiclo() {{
@@ -112,20 +108,18 @@ def index():
                             currentProdutoIndex = (currentProdutoIndex + 1) % produtos.length;
                         }}
                     }})
-                    .catch(error => {{
-                        console.error("Erro na transição:", error);
-                    }});
+                    .catch(error => console.error("Erro na transição:", error));
             }}
 
             initViz();
 
-            // Recarrega a cada 15 min
-            setTimeout(() => {{ location.reload(); }}, 900000);
+            // Recarrega a página a cada 30 minutos
+            setTimeout(() => location.reload(), 30 * 60 * 1000);
         </script>
     </body>
     </html>
     """
-    return html_str
+    return render_template_string(html_str)
 
 if __name__ == '__main__':
     app.run(debug=True)
