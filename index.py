@@ -2,7 +2,7 @@ from flask import Flask, render_template_string
 import jwt
 import datetime
 import uuid
-from test import CLIENT_SECRET_ID, CLIENT_ID, CLIENT_SECRET_KEY
+import gunicorn
 
 app = Flask(__name__)
 
